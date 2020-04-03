@@ -1,0 +1,8 @@
+{
+  "domain": "netia_player",
+  "name": "Netia Player",
+  "documentation": "https://github.com/korasinski/ha-netia",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@korasinski"]
+}
