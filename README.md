@@ -87,3 +87,5 @@ key | description
     power_state: false 
     volume: true
 ```
+- - - -
+<sup>Custom component build based on [braviatv_psk](https://github.com/custom-components/media_player.braviatv_psk)</sup>
