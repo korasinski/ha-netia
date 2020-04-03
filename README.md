@@ -8,6 +8,11 @@
 # Custom component for Netia Player 
 A platform which allows you to interact with the Netia Player TV box using HTTP API and `media_player` entity.
 
+Currently supported device: _Netgem N7800 (Netia Player 2.0)_:
+
+![Netia Player 2.0](images/netia_player_2_0.jpg)
+
+
 ### Homekit TV supported!
 The media player will show up as Television accessories on devices running iOS 12.2 or later
 
