@@ -52,7 +52,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_HOST): cv.string,
     vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.string,
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Optional(CONF_APP, default=False): cv.boolean,
+    vol.Required(CONF_APP, default=False): cv.boolean,
     vol.Optional(CONF_APP_LIST, default=['tv']): vol.All(
         cv.ensure_list, [cv.string])
 })
@@ -123,7 +123,7 @@ class Netia(MediaPlayerDevice):
                 self._reset_channel_info()
                 app_info = self._netia.get_app_info()
                 if app_info is not None:
-                    self._refresh_apps()
+                    self._refresh_apps(app_info.get('id'), app_info.get('name'))
                     if app_info.get('id') is 'tv':
                         channel_info = self._netia.get_channel_info()
                         if channel_info is not None:
@@ -131,7 +131,6 @@ class Netia(MediaPlayerDevice):
                             self._channel_name = channel_info.get('channel_name')
                             self._program_name = TV_WAIT
                             self._state = STATE_PLAYING
-                            self._source = app_info.get('name')
                             channel_details = self._netia.get_channel_details(channel_info.get('id'))
                             if channel_details is not None:
                                 self._reset_channel_info()
@@ -152,7 +151,6 @@ class Netia(MediaPlayerDevice):
                             self._program_name = TV_NO_INFO
                     else:
                         self._reset_channel_info()
-                        self._source = app_info.get('name')
                         self._channel_name = app_info.get('name')
                         self._media_image_url = app_info.get('image')
                         self._state = TV_APP_OPENED
@@ -191,13 +189,29 @@ class Netia(MediaPlayerDevice):
             self._volume = None
             self._muted = None
 
-    def _refresh_apps(self):
+    def _refresh_apps(self, current_id, current_name):
         """Refresh application list."""
         if self._app_support is True:
             self._application_list = self._netia.application_list()
             self._source_list = []
-            for app in self._application_list:
-                self._source_list.append(app.get('name'))
+            self._source = None
+            if self._app_list is not None:
+                _LOGGER.debug("Application config list: " + str(self._app_list))
+                if 'tv' not in self._app_list:
+                    self._source_list.append('TV')
+                if current_id not in self._app_list:
+                    self._app_list.append(current_id)
+                for app in self._app_list:
+                    for app_name in self._application_list:
+                        if app == app_name.get('id'):
+                            self._source_list.append(app_name.get('name'))
+            else:
+                for app in self._application_list:
+                    self._source_list.append(app.get('name'))
+            if current_name in self._source_list:
+                self._source = current_name
+        else:
+            self._source = None
 
     @property
     def volume_level(self):
@@ -229,8 +243,7 @@ class Netia(MediaPlayerDevice):
     @property
     def source(self):
         """Return the current input source."""
-        if self._app_support is True:
-            return self._source
+        return self._source
 
     @property
     def source_list(self):
@@ -406,9 +419,8 @@ class Netia(MediaPlayerDevice):
     def select_source(self, source):
         """Set the input source."""
         for app in self._application_list:
-            if app.get('name') == str(source):
-                app_id = app.get('id')
-                self._netia.open_app(app_id)
+            if app.get('id') == source:
+                self._netia.open_app(app.get('id'))
 
     def play_media(self, media_type, media_id, **kwargs):
         """Play media."""
