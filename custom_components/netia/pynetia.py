@@ -29,16 +29,15 @@ URL_CHANNEL_IMAGE = "EPG/Programs/getImage?channelId="
 URL_APPLICATION_LIST = "Applications/State/get"
 URL_APPLICATION_OPEN = "Applications/Lifecycle/open?appId="
 
-URL_NETIA_EPG_APPS_SETTINGS = "http://epg.dms.netia.pl/xmltv/lib/pilot/netiaPadAppsSettings.json"
-URL_NETIA_EPG_APPS_PROMO = "http://epg.dms.netia.pl/xmltv/lib/pilot/netiaPadPromo.json"
-URL_NETIA_EPG_CHANNEL_LOGO = 'http://epg.dms.netia.pl/xmltv/logo/black/tvnhd.png'
+# URL_NETIA_EPG_APPS_SETTINGS = "http://epg.dms.netia.pl/xmltv/lib/pilot/netiaPadAppsSettings.json"
+# URL_NETIA_EPG_APPS_PROMO = "http://epg.dms.netia.pl/xmltv/lib/pilot/netiaPadPromo.json"
+
 URL_NETIA_EPG_LOGO = "http://epg.dms.netia.pl/xmltv/logo/black/"
 
 AVALIABLE_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'on_off', 'mute', 'volume_up', 'volume_down', 'channel_up',
-    'channel_down', 'back', 'fullscreen',
-    'menu', 'up', 'down', 'left', 'right', 'ok', 'play', 'stop', 'prev', 'next', 'rec', 'guide', 'delete',
-    'red', 'green', 'yellow', 'blue'
+    'channel_down', 'back', 'fullscreen', 'menu', 'up', 'down', 'left', 'right', 'ok', 'play', 'stop', 'prev', 'next',
+    'rec', 'guide', 'delete', 'red', 'green', 'yellow', 'blue'
 ]
 _LOGGER = logging.getLogger(__name__)
 
