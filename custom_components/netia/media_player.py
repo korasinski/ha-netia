@@ -32,7 +32,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SUPPORT_NETIA = \
     SUPPORT_TURN_ON | SUPPORT_TURN_OFF | SUPPORT_VOLUME_MUTE | SUPPORT_VOLUME_STEP | \
-    SUPPORT_PREVIOUS_TRACK | SUPPORT_NEXT_TRACK | SUPPORT_PLAY_MEDIA
+    SUPPORT_PREVIOUS_TRACK | SUPPORT_NEXT_TRACK | SUPPORT_PLAY_MEDIA | SUPPORT_PAUSE
 
 DEFAULT_NAME = 'Netia Player'
 DEVICE_CLASS_TV = 'tv'
@@ -41,7 +41,6 @@ DEVICE_CLASS_TV = 'tv'
 DEFAULT_PORT = '8080'
 CONF_APP = 'app_support'
 CONF_APP_LIST = 'app_list'
-
 
 # Some additional info to show specific for Netia Player
 TV_WAIT = 'TV started, waiting for program info'
@@ -117,10 +116,10 @@ class Netia(MediaPlayerDevice):
         """Update Netia Player device info."""
         try:
             standby_status = self._netia.get_standby_status()
+            self._reset_channel_info()
             if standby_status == 'off':  # Device is turned ON!
                 self._state = STATE_ON
                 self._refresh_volume()
-                self._reset_channel_info()
                 app_info = self._netia.get_app_info()
                 if app_info is not None:
                     self._refresh_apps(app_info.get('id'), app_info.get('name'))
@@ -160,6 +159,8 @@ class Netia(MediaPlayerDevice):
                     _LOGGER.info("TV is starting, no info available yet")
                 else:
                     self._state = STATE_OFF
+                    self._source_list = []
+
         except Exception as exception_instance:  # pylint: disable=broad-except
             _LOGGER.debug("No data received from device. Error message: %s", exception_instance)
             self._state = STATE_OFF
@@ -193,25 +194,25 @@ class Netia(MediaPlayerDevice):
         """Refresh application list."""
         if self._app_support is True:
             self._application_list = self._netia.application_list()
-            self._source_list = []
-            self._source = None
+            source_list = []
             if self._app_list is not None:
-                _LOGGER.debug("Application config list: " + str(self._app_list))
                 if 'tv' not in self._app_list:
-                    self._source_list.append('TV')
+                    source_list.append('TV')
                 if current_id not in self._app_list:
                     self._app_list.append(current_id)
                 for app in self._app_list:
                     for app_name in self._application_list:
                         if app == app_name.get('id'):
-                            self._source_list.append(app_name.get('name'))
+                            source_list.append(app_name.get('name'))
             else:
                 for app in self._application_list:
-                    self._source_list.append(app.get('name'))
-            if current_name in self._source_list:
+                    source_list.append(app.get('name'))
+            if current_name in source_list:
                 self._source = current_name
+                self._source_list = source_list
         else:
             self._source = None
+            self._source_list = []
 
     @property
     def volume_level(self):
@@ -248,7 +249,7 @@ class Netia(MediaPlayerDevice):
     @property
     def source_list(self):
         """List of available input sources."""
-        if self._app_support is True:
+        if self._source_list:
             return self._source_list
 
     @property
@@ -385,7 +386,6 @@ class Netia(MediaPlayerDevice):
         """Send mute command."""
         self._netia.mute_volume()
 
-    # Temporary not used
     # def media_play_pause(self):
     #     """Simulate play pause media player."""
     #     if self._playing:
@@ -398,15 +398,15 @@ class Netia(MediaPlayerDevice):
     #     self._playing = True
     #     self._netia.media_play()
     #
-    # def media_pause(self):
-    #     """Send media pause command to media player."""
-    #     self._playing = False
-    #     self._netia.media_pause()
-    #
+    def media_pause(self):
+        """Send media pause command to media player."""
+        self._netia.turn_off()
+        self._state = STATE_OFF
+
     # def media_stop(self):
     #     """Send media pause command to media player."""
-    #     self._playing = False
     #     self._netia.turn_off()
+    #     self._state = STATE_OFF
 
     def media_next_track(self):
         """Send next track command."""
@@ -419,7 +419,7 @@ class Netia(MediaPlayerDevice):
     def select_source(self, source):
         """Set the input source."""
         for app in self._application_list:
-            if app.get('id') == source:
+            if app.get('name') == source:
                 self._netia.open_app(app.get('id'))
 
     def play_media(self, media_type, media_id, **kwargs):
