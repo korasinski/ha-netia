@@ -47,7 +47,7 @@ Put the files from `/custom_components/netia/` in your config folder under `<con
 
 ```yaml
 media_player:
-  - platform: netia
+  - platform: netia_player
     host: 192.168.1.5
 ```
 
@@ -55,7 +55,7 @@ media_player:
 
 key | description  
 :--- | :---  
-**platform** _(Required)_ | The platform name `netia`
+**platform** _(Required)_ | The platform name `netia_player`
 **host** _(Required)_ | The IP of the Netia Player, eg. `192.168.1.5`
 **port** _(Optional)_ | The port of API in the Netia Player, default is `8080`
 **name** _(Optional)_ | The name the device will have in Home Assistant, default is `Netia Player`
