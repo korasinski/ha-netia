@@ -7,6 +7,7 @@ https://github.com/korasinski/ha-neti
 import logging
 import time
 import voluptuous as vol
+from pyNetia import pyNetia
 from homeassistant.components.media_player import (
     MediaPlayerDevice, PLATFORM_SCHEMA)
 try:
@@ -78,9 +79,7 @@ class Netia(MediaPlayerDevice):
         """Initialize the Netia Player device."""
         _LOGGER.info("Setting up Netia Player")
 
-        import pyNetia
-
-        self._netia = pyNetia.Netia(host, port)
+        self._netia = pyNetia(host, port)
         self._name = name
         self._app_support = app_support
         self._app_list = app_list
