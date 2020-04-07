@@ -26,8 +26,6 @@ from homeassistant.const import (
 import homeassistant.helpers.config_validation as cv
 from homeassistant.util.dt import utcnow
 
-__version__ = '0.0.2'
-
 _LOGGER = logging.getLogger(__name__)
 
 SUPPORT_NETIA = \
@@ -56,8 +54,6 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
         cv.ensure_list, [cv.string])
 })
 
-# pylint: disable=unused-argument
-
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Netia Player platform."""
@@ -82,8 +78,9 @@ class Netia(MediaPlayerDevice):
         """Initialize the Netia Player device."""
         _LOGGER.info("Setting up Netia Player")
 
-        from . import pynetia
-        self._netia = pynetia.Netia(host, port)
+        import pyNetia
+
+        self._netia = pyNetia.Netia(host, port)
         self._name = name
         self._app_support = app_support
         self._app_list = app_list

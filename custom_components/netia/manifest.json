@@ -1,8 +1,8 @@
 {
   "domain": "netia_player",
   "name": "Netia Player",
+  "codeowners": ["@korasinski"],
   "documentation": "https://github.com/korasinski/ha-netia",
-  "requirements": [],
-  "dependencies": [],
-  "codeowners": ["@korasinski"]
+  "requirements": ["pyNetia==0.0.2"],
+  "quality_scale": "silver"
 }
