@@ -27,6 +27,8 @@ from homeassistant.const import (
 import homeassistant.helpers.config_validation as cv
 from homeassistant.util.dt import utcnow
 
+_VERSION = "0.0.2"
+
 _LOGGER = logging.getLogger(__name__)
 
 SUPPORT_NETIA = \
