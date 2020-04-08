@@ -7,7 +7,7 @@ https://github.com/korasinski/ha-neti
 import logging
 import time
 import voluptuous as vol
-from pyNetia import pyNetia
+from pyNetia import PyNetia
 from homeassistant.components.media_player import (
     MediaPlayerDevice, PLATFORM_SCHEMA)
 try:
@@ -27,7 +27,7 @@ from homeassistant.const import (
 import homeassistant.helpers.config_validation as cv
 from homeassistant.util.dt import utcnow
 
-_VERSION = "0.0.2"
+_VERSION = "0.1.0"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_HOST): cv.string,
     vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.string,
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Required(CONF_APP, default=False): cv.boolean,
+    vol.Optional(CONF_APP, default=False): cv.boolean,
     vol.Optional(CONF_APP_LIST, default=['tv']): vol.All(
         cv.ensure_list, [cv.string])
 })
@@ -81,7 +81,7 @@ class Netia(MediaPlayerDevice):
         """Initialize the Netia Player device."""
         _LOGGER.info("Setting up Netia Player")
 
-        self._netia = pyNetia(host, port)
+        self._netia = PyNetia(host, port)
         self._name = name
         self._app_support = app_support
         self._app_list = app_list
@@ -91,6 +91,7 @@ class Netia(MediaPlayerDevice):
         self._channel_name = None
         self._channel_number = None
         self._available_keys = self._netia.available_keys()
+        self._supported_apps = self._netia.supported_apps()
         self._application_list = {}
         self._media_episode = None
         self._media_channel = None
@@ -106,7 +107,7 @@ class Netia(MediaPlayerDevice):
         self._end_time = None
         self._device_class = DEVICE_CLASS_TV
         self._unique_id = '{}-{}'.format(host, name)
-        _LOGGER.debug("Seting up Netia Player with IP: %s:%s and app support: %s", host, port, app_support)
+        _LOGGER.debug("Seting up Netia Player with IP: %s:%s and app support: %s.", host, port, app_support)
 
         self.update()
 
@@ -143,7 +144,6 @@ class Netia(MediaPlayerDevice):
                                 self._end_time = channel_details.get('end_time')
                             else:
                                 self._program_name = TV_NO_INFO
-                                self._media_image_url = channel_info.get('image')
                         else:
                             self._program_name = TV_NO_INFO
                     else:
@@ -157,7 +157,6 @@ class Netia(MediaPlayerDevice):
                     _LOGGER.info("TV is starting, no info available yet")
                 else:
                     self._state = STATE_OFF
-                    self._source_list = []
 
         except Exception as exception_instance:  # pylint: disable=broad-except
             _LOGGER.debug("No data received from device. Error message: %s", exception_instance)
@@ -192,6 +191,7 @@ class Netia(MediaPlayerDevice):
         """Refresh application list."""
         if self._app_support is True:
             self._application_list = self._netia.application_list()
+
             source_list = []
             if self._app_list is not None:
                 if 'tv' not in self._app_list:
@@ -247,8 +247,7 @@ class Netia(MediaPlayerDevice):
     @property
     def source_list(self):
         """List of available input sources."""
-        if self._source_list:
-            return self._source_list
+        return self._source_list
 
     @property
     def supported_features(self):
