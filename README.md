@@ -238,8 +238,6 @@ Sometimes warnings like:
 `WARNING (SyncWorker_4) [homeassistant.components.homekit.type_media_players] media_player.netia_player: Sources out of sync. Restart Home Assistant`
 may appear. This issue will be fixed later. 
 
-<br>
-<br>
-
 ___
-<div class="text-gray-dark"><sup>All trademarks and registered trademarks presented in the pictures above are property of their respective owners.<br><br><sup>Custom component based on <a class="text-gray-dark no-underline" href="https://github.com/custom-components/media_player.braviatv_psk">braviatv_psk</a></sup></sup></div>
+> <sup>All trademarks and registered trademarks presented in the pictures above are property of their respective owners.</sup><br>
+> <sup><sup>Custom component based on <a href="https://github.com/custom-components/media_player.braviatv_psk">braviatv_psk</a><sup></sup>
