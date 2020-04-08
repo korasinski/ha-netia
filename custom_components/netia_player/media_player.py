@@ -115,8 +115,8 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         netia.get_standby_status()
     except Exception:  # pylint: disable=broad-except
         raise PlatformNotReady
-
-    add_devices([Netia(netia, name, app_support, app_list)])
+    else:
+        add_devices([Netia(netia, name, app_support, app_list)])
 
 
 class Netia(MediaPlayerDevice):
@@ -154,7 +154,7 @@ class Netia(MediaPlayerDevice):
         self._unique_id = "{}-{}".format(self._netia._host, name)
         _LOGGER.debug(
             "Seting up Netia Player with IP: %s:%s and app support: %s.",
-            self._netia._,
+            self._netia._host,
             self._netia._port,
             app_support,
         )
