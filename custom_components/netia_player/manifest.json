@@ -3,6 +3,6 @@
   "name": "Netia Player",
   "codeowners": ["@korasinski"],
   "documentation": "https://github.com/korasinski/ha-netia",
-  "requirements": ["pyNetia==0.1.1"],
+  "requirements": ["pyNetia==0.1.2"],
   "quality_scale": "silver"
 }
