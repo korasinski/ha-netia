@@ -25,46 +25,76 @@ from homeassistant.util.dt import utcnow
 
 try:
     from homeassistant.components.media_player.const import (
-        SUPPORT_NEXT_TRACK, SUPPORT_PAUSE, SUPPORT_PREVIOUS_TRACK,
-        SUPPORT_TURN_ON, SUPPORT_TURN_OFF, SUPPORT_VOLUME_MUTE, SUPPORT_PLAY,
-        SUPPORT_PLAY_MEDIA, SUPPORT_VOLUME_STEP, SUPPORT_VOLUME_SET,
-        SUPPORT_SELECT_SOURCE, SUPPORT_STOP, MEDIA_TYPE_TVSHOW, MEDIA_TYPE_APP)
+        SUPPORT_NEXT_TRACK,
+        SUPPORT_PAUSE,
+        SUPPORT_PREVIOUS_TRACK,
+        SUPPORT_TURN_ON,
+        SUPPORT_TURN_OFF,
+        SUPPORT_VOLUME_MUTE,
+        SUPPORT_PLAY,
+        SUPPORT_PLAY_MEDIA,
+        SUPPORT_VOLUME_STEP,
+        SUPPORT_VOLUME_SET,
+        SUPPORT_SELECT_SOURCE,
+        SUPPORT_STOP,
+        MEDIA_TYPE_TVSHOW,
+        MEDIA_TYPE_APP,
+    )
 except ImportError:
     from homeassistant.components.media_player import (
-        SUPPORT_NEXT_TRACK, SUPPORT_PAUSE, SUPPORT_PREVIOUS_TRACK,
-        SUPPORT_TURN_ON, SUPPORT_TURN_OFF, SUPPORT_VOLUME_MUTE, SUPPORT_PLAY,
-        SUPPORT_PLAY_MEDIA, SUPPORT_VOLUME_STEP, SUPPORT_VOLUME_SET,
-        SUPPORT_SELECT_SOURCE, SUPPORT_STOP)
+        SUPPORT_NEXT_TRACK,
+        SUPPORT_PAUSE,
+        SUPPORT_PREVIOUS_TRACK,
+        SUPPORT_TURN_ON,
+        SUPPORT_TURN_OFF,
+        SUPPORT_VOLUME_MUTE,
+        SUPPORT_PLAY,
+        SUPPORT_PLAY_MEDIA,
+        SUPPORT_VOLUME_STEP,
+        SUPPORT_VOLUME_SET,
+        SUPPORT_SELECT_SOURCE,
+        SUPPORT_STOP,
+    )
 
 _VERSION = "0.1.0"
 
 _LOGGER = logging.getLogger(__name__)
 
-SUPPORT_NETIA = \
-    SUPPORT_TURN_ON | SUPPORT_TURN_OFF | SUPPORT_VOLUME_MUTE | SUPPORT_VOLUME_STEP | \
-    SUPPORT_PREVIOUS_TRACK | SUPPORT_NEXT_TRACK | SUPPORT_PLAY_MEDIA | SUPPORT_PAUSE
+SUPPORT_NETIA = (
+    SUPPORT_TURN_ON
+    | SUPPORT_TURN_OFF
+    | SUPPORT_VOLUME_MUTE
+    | SUPPORT_VOLUME_STEP
+    | SUPPORT_PREVIOUS_TRACK
+    | SUPPORT_NEXT_TRACK
+    | SUPPORT_PLAY_MEDIA
+    | SUPPORT_PAUSE
+)
 
-DEFAULT_NAME = 'Netia Player'
-DEVICE_CLASS_TV = 'tv'
+DEFAULT_NAME = "Netia Player"
+DEVICE_CLASS_TV = "tv"
 
 # Config file
-DEFAULT_PORT = '8080'
-CONF_APP = 'app_support'
-CONF_APP_LIST = 'app_list'
+DEFAULT_PORT = "8080"
+CONF_APP = "app_support"
+CONF_APP_LIST = "app_list"
 
 # Some additional info to show specific for Netia Player
-TV_WAIT = 'TV started, waiting for program info'
-TV_APP_OPENED = 'App opened'
-TV_NO_INFO = 'No info'
+TV_WAIT = "TV started, waiting for program info"
+TV_APP_OPENED = "App opened"
+TV_NO_INFO = "No info"
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_HOST): cv.string,
-    vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.string,
-    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Optional(CONF_APP, default=False): cv.boolean,
-    vol.Optional(CONF_APP_LIST, default=['tv']): vol.All(
-        cv.ensure_list, [cv.string])
-})
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Required(CONF_HOST): cv.string,
+        vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.string,
+        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Optional(CONF_APP, default=False): cv.boolean,
+        vol.Optional(CONF_APP_LIST, default=["tv"]): vol.All(
+            cv.ensure_list, [cv.string]
+        ),
+    }
+)
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -76,8 +106,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     app_list = config.get(CONF_APP_LIST)
 
     if host is None:
-        _LOGGER.error(
-            "No Netia Player IP address found in configuration file")
+        _LOGGER.error("No Netia Player IP address found in configuration file")
         return
 
     netia = PyNetia(host, port)
@@ -122,8 +151,13 @@ class Netia(MediaPlayerDevice):
         self._start_time = None
         self._end_time = None
         self._device_class = DEVICE_CLASS_TV
-        self._unique_id = '{}-{}'.format(self._netia._host, name)
-        _LOGGER.debug("Seting up Netia Player with IP: %s:%s and app support: %s.", self._netia._, self._netia._port, app_support)
+        self._unique_id = "{}-{}".format(self._netia._host, name)
+        _LOGGER.debug(
+            "Seting up Netia Player with IP: %s:%s and app support: %s.",
+            self._netia._,
+            self._netia._port,
+            app_support,
+        )
 
         self.update()
 
@@ -134,40 +168,46 @@ class Netia(MediaPlayerDevice):
             self._supported_apps = self._netia.supported_apps()
             standby_status = self._netia.get_standby_status()
             self._reset_channel_info()
-            if standby_status == 'off':  # Device is turned ON!
+            if standby_status == "off":  # Device is turned ON!
                 self._state = STATE_ON
                 self._refresh_volume()
                 app_info = self._netia.get_app_info()
                 if app_info is not None:
-                    self._refresh_apps(app_info.get('id'), app_info.get('name'))
-                    if app_info.get('id') is 'tv':
+                    self._refresh_apps(app_info.get("id"), app_info.get("name"))
+                    if app_info.get("id") is "tv":
                         channel_info = self._netia.get_channel_info()
                         if channel_info is not None:
-                            self._media_channel = channel_info.get('media_channel')
-                            self._channel_name = channel_info.get('channel_name')
+                            self._media_channel = channel_info.get("media_channel")
+                            self._channel_name = channel_info.get("channel_name")
                             self._program_name = TV_WAIT
                             self._state = STATE_PLAYING
-                            channel_details = self._netia.get_channel_details(channel_info.get('id'))
+                            channel_details = self._netia.get_channel_details(
+                                channel_info.get("id")
+                            )
                             if channel_details is not None:
                                 self._reset_channel_info()
-                                self._media_channel = channel_info.get('media_channel')
-                                self._channel_name = channel_info.get('channel_name')
-                                self._media_image_url = channel_details.get('image')
-                                self._program_name = channel_details.get('program_name')
-                                self._media_content_type = channel_details.get('program_media_type')
-                                self._media_episode = channel_details.get('media_episode')
-                                self._sound_mode = channel_details.get('sound_mode')
-                                self._duration = channel_details.get('duration')
-                                self._start_time = channel_details.get('start_time')
-                                self._end_time = channel_details.get('end_time')
+                                self._media_channel = channel_info.get("media_channel")
+                                self._channel_name = channel_info.get("channel_name")
+                                self._media_image_url = channel_details.get("image")
+                                self._program_name = channel_details.get("program_name")
+                                self._media_content_type = channel_details.get(
+                                    "program_media_type"
+                                )
+                                self._media_episode = channel_details.get(
+                                    "media_episode"
+                                )
+                                self._sound_mode = channel_details.get("sound_mode")
+                                self._duration = channel_details.get("duration")
+                                self._start_time = channel_details.get("start_time")
+                                self._end_time = channel_details.get("end_time")
                             else:
                                 self._program_name = TV_NO_INFO
                         else:
                             self._program_name = TV_NO_INFO
                     else:
                         self._reset_channel_info()
-                        self._channel_name = app_info.get('name')
-                        self._media_image_url = app_info.get('image')
+                        self._channel_name = app_info.get("name")
+                        self._media_image_url = app_info.get("image")
                         self._state = TV_APP_OPENED
             else:  # Device is turned OFF
                 if self._program_name is TV_WAIT:
@@ -177,7 +217,9 @@ class Netia(MediaPlayerDevice):
                     self._state = STATE_OFF
 
         except Exception as exception_instance:  # pylint: disable=broad-except
-            _LOGGER.debug("No data received from device. Error message: %s", exception_instance)
+            _LOGGER.debug(
+                "No data received from device. Error message: %s", exception_instance
+            )
             self._state = STATE_OFF
 
     def _reset_channel_info(self):
@@ -199,8 +241,8 @@ class Netia(MediaPlayerDevice):
         """Refresh volume information."""
         volume_info = self._netia.get_volume_info()
         if volume_info is not None:
-            self._volume = volume_info.get('volume')
-            self._muted = volume_info.get('muted')
+            self._volume = volume_info.get("volume")
+            self._muted = volume_info.get("muted")
         else:
             self._volume = None
             self._muted = None
@@ -212,17 +254,17 @@ class Netia(MediaPlayerDevice):
 
             source_list = []
             if self._app_list is not None:
-                if 'tv' not in self._app_list:
-                    source_list.append('TV')
+                if "tv" not in self._app_list:
+                    source_list.append("TV")
                 if current_id not in self._app_list:
                     self._app_list.append(current_id)
                 for app in self._app_list:
                     for app_name in self._application_list:
-                        if app == app_name.get('id'):
-                            source_list.append(app_name.get('name'))
+                        if app == app_name.get("id"):
+                            source_list.append(app_name.get("name"))
             else:
                 for app in self._application_list:
-                    source_list.append(app.get('name'))
+                    source_list.append(app.get("name"))
             if current_name in source_list:
                 self._source = current_name
                 self._source_list = source_list
@@ -434,8 +476,8 @@ class Netia(MediaPlayerDevice):
     def select_source(self, source):
         """Set the input source."""
         for app in self._application_list:
-            if app.get('name') == source:
-                self._netia.open_app(app.get('id'))
+            if app.get("name") == source:
+                self._netia.open_app(app.get("id"))
 
     def play_media(self, media_type, media_id, **kwargs):
         """Play media."""
