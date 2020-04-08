@@ -6,10 +6,23 @@ https://github.com/korasinski/ha-neti
 """
 import logging
 import time
-import voluptuous as vol
+
 from pyNetia import PyNetia
-from homeassistant.components.media_player import (
-    MediaPlayerDevice, PLATFORM_SCHEMA)
+import voluptuous as vol
+
+from homeassistant.components.media_player import PLATFORM_SCHEMA, MediaPlayerDevice
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_NAME,
+    CONF_PORT,
+    STATE_OFF,
+    STATE_ON,
+    STATE_PLAYING,
+)
+from homeassistant.exceptions import PlatformNotReady
+import homeassistant.helpers.config_validation as cv
+from homeassistant.util.dt import utcnow
+
 try:
     from homeassistant.components.media_player.const import (
         SUPPORT_NEXT_TRACK, SUPPORT_PAUSE, SUPPORT_PREVIOUS_TRACK,
@@ -22,11 +35,6 @@ except ImportError:
         SUPPORT_TURN_ON, SUPPORT_TURN_OFF, SUPPORT_VOLUME_MUTE, SUPPORT_PLAY,
         SUPPORT_PLAY_MEDIA, SUPPORT_VOLUME_STEP, SUPPORT_VOLUME_SET,
         SUPPORT_SELECT_SOURCE, SUPPORT_STOP)
-from homeassistant.const import (
-    CONF_HOST, CONF_PORT, CONF_NAME, STATE_OFF, STATE_ON, STATE_PLAYING)
-from homeassistant.exceptions import PlatformNotReady
-import homeassistant.helpers.config_validation as cv
-from homeassistant.util.dt import utcnow
 
 _VERSION = "0.1.0"
 
