@@ -56,7 +56,7 @@ except ImportError:
         SUPPORT_STOP,
     )
 
-_VERSION = "0.1.0"
+_VERSION = "0.1.1"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -136,7 +136,6 @@ class Netia(MediaPlayerDevice):
         self._channel_name = None
         self._channel_number = None
         self._available_keys = None
-        self._supported_apps = None
         self._application_list = {}
         self._media_episode = None
         self._media_channel = None
@@ -165,7 +164,6 @@ class Netia(MediaPlayerDevice):
         """Update Netia Player device info."""
         try:
             self._available_keys = self._netia.available_keys()
-            self._supported_apps = self._netia.supported_apps()
             standby_status = self._netia.get_standby_status()
             self._reset_channel_info()
             if standby_status == "off":  # Device is turned ON!
@@ -201,7 +199,7 @@ class Netia(MediaPlayerDevice):
                                 self._start_time = channel_details.get("start_time")
                                 self._end_time = channel_details.get("end_time")
                             else:
-                                self._program_name = TV_NO_INFO
+                                self._program_name = TV_WAIT
                         else:
                             self._program_name = TV_NO_INFO
                     else:
@@ -476,13 +474,13 @@ class Netia(MediaPlayerDevice):
     def select_source(self, source):
         """Set the input source."""
         for app in self._application_list:
-            if app.get("name") == source:
+            if app.get("id") == source.lower().replace(" ", ""):
                 self._netia.open_app(app.get("id"))
 
     def play_media(self, media_type, media_id, **kwargs):
         """Play media."""
-        _LOGGER.debug("Play media: %s (%s)", media_id, media_type)
-        if media_id in self._available_keys:
-            self._netia.send_command(media_id)
+        key = media_id.lower().replace(" ", "")
+        if key in self._available_keys:
+            self._netia.send_command(key)
         else:
-            _LOGGER.warning("Unsupported media_id: %s", media_id)
+            _LOGGER.warning("Unsupported key: %s", media_id)
