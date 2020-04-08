@@ -24,6 +24,7 @@ except ImportError:
         SUPPORT_SELECT_SOURCE, SUPPORT_STOP)
 from homeassistant.const import (
     CONF_HOST, CONF_PORT, CONF_NAME, STATE_OFF, STATE_ON, STATE_PLAYING)
+from homeassistant.exceptions import PlatformNotReady
 import homeassistant.helpers.config_validation as cv
 from homeassistant.util.dt import utcnow
 
@@ -71,17 +72,24 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
             "No Netia Player IP address found in configuration file")
         return
 
-    add_devices([Netia(host, port, name, app_support, app_list)])
+    netia = PyNetia(host, port)
+
+    try:
+        netia.get_standby_status()
+    except Exception:  # pylint: disable=broad-except
+        raise PlatformNotReady
+
+    add_devices([Netia(netia, name, app_support, app_list)])
 
 
 class Netia(MediaPlayerDevice):
     """Representation of a Netia Player."""
 
-    def __init__(self, host, port, name, app_support, app_list):
+    def __init__(self, netia, name, app_support, app_list):
         """Initialize the Netia Player device."""
         _LOGGER.info("Setting up Netia Player")
 
-        self._netia = PyNetia(host, port)
+        self._netia = netia
         self._name = name
         self._app_support = app_support
         self._app_list = app_list
@@ -90,8 +98,8 @@ class Netia(MediaPlayerDevice):
         self._program_name = None
         self._channel_name = None
         self._channel_number = None
-        self._available_keys = self._netia.available_keys()
-        self._supported_apps = self._netia.supported_apps()
+        self._available_keys = None
+        self._supported_apps = None
         self._application_list = {}
         self._media_episode = None
         self._media_channel = None
@@ -106,14 +114,16 @@ class Netia(MediaPlayerDevice):
         self._start_time = None
         self._end_time = None
         self._device_class = DEVICE_CLASS_TV
-        self._unique_id = '{}-{}'.format(host, name)
-        _LOGGER.debug("Seting up Netia Player with IP: %s:%s and app support: %s.", host, port, app_support)
+        self._unique_id = '{}-{}'.format(self._netia._host, name)
+        _LOGGER.debug("Seting up Netia Player with IP: %s:%s and app support: %s.", self._netia._, self._netia._port, app_support)
 
         self.update()
 
     def update(self):
         """Update Netia Player device info."""
         try:
+            self._available_keys = self._netia.available_keys()
+            self._supported_apps = self._netia.supported_apps()
             standby_status = self._netia.get_standby_status()
             self._reset_channel_info()
             if standby_status == 'off':  # Device is turned ON!
