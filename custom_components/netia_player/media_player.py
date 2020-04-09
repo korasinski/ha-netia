@@ -82,7 +82,7 @@ CONF_APP_LIST = "app_list"
 # Some additional info to show specific for Netia Player
 TV_WAIT = "TV started, waiting for program info"
 TV_APP_OPENED = "App opened"
-TV_NO_INFO = "No info"
+TV_NO_INFO = "No program info"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -199,7 +199,7 @@ class Netia(MediaPlayerDevice):
                                 self._start_time = channel_details.get("start_time")
                                 self._end_time = channel_details.get("end_time")
                             else:
-                                if channel_info.get("id") in 'giganagrywarka':
+                                if channel_info.get("id") in "giganagrywarka":
                                     self._program_name = TV_NO_INFO
                                     _LOGGER.debug(channel_info.get("image"))
                                     self._media_image_url = channel_info.get("image")
