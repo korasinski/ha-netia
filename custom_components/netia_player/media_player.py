@@ -177,7 +177,7 @@ class Netia(MediaPlayerDevice):
                         if channel_info is not None:
                             self._media_channel = channel_info.get("media_channel")
                             self._channel_name = channel_info.get("channel_name")
-                            self._program_name = TV_WAIT
+                            self._program_name = TV_NO_INFO
                             self._state = STATE_PLAYING
                             channel_details = self._netia.get_channel_details(
                                 channel_info.get("id")
@@ -199,7 +199,12 @@ class Netia(MediaPlayerDevice):
                                 self._start_time = channel_details.get("start_time")
                                 self._end_time = channel_details.get("end_time")
                             else:
-                                self._program_name = TV_WAIT
+                                if channel_info.get("id") in 'giganagrywarka':
+                                    self._program_name = TV_NO_INFO
+                                    _LOGGER.debug(channel_info.get("image"))
+                                    self._media_image_url = channel_info.get("image")
+                                else:
+                                    self._program_name = TV_WAIT
                         else:
                             self._program_name = TV_NO_INFO
                     else:
