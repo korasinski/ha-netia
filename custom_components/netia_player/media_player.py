@@ -476,6 +476,8 @@ class Netia(MediaPlayerDevice):
         for app in self._application_list:
             if app.get("id") == source.lower().replace(" ", ""):
                 self._netia.open_app(app.get("id"))
+            elif app.get("name") == source:
+                self._netia.open_app(app.get("id"))
 
     def play_media(self, media_type, media_id, **kwargs):
         """Play media."""
