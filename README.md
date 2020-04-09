@@ -31,13 +31,13 @@ The media player will show up as Television accessories on devices running iOS 1
 
 ## Screenshots
 
+_Component can be used with default Home Assistant Media Player and [Mini Media Player](https://github.com/kalkih/mini-media-player) from [kalkih](https://github.com/kalkih/):_
+
 ![Media Player in Home Assistant](images/players.gif)
 
-_Component can be used with default Home Assistant Media Player and [Mini Media Player](https://github.com/kalkih/mini-media-player) from [kalkih](https://github.com/kalkih/)_
+_More details is displayed on the card more-info view:_
 
 ![Media Player Details in Home Assistant](images/details.gif)
-
-_More details is displayed on the card more-info view_
 
 ## Installation
 
