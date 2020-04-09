@@ -234,10 +234,12 @@ There are internal apps like `epg` and `settings` which you can use in the servi
 _**NOTICE**: Some apps might be unavaliable in your subscription or are extra paid._
 
 ##Known issues
-Sometimes warnings like:
+- Sometimes warnings like:
 `WARNING (SyncWorker_4) [homeassistant.components.homekit.type_media_players] media_player.netia_player: Sources out of sync. Restart Home Assistant`
 may appear. This issue will be fixed later. 
+- `sync_get_media_image` error pops out when current channel image is not accessible at time of request. 
 
-___
+
+
 > <sup>All trademarks and registered trademarks presented in the pictures above are property of their respective owners.</sup><br>
 > <sup><sup>Custom component based on <a href="https://github.com/custom-components/media_player.braviatv_psk">braviatv_psk</a><sup></sup>
