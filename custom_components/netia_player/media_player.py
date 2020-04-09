@@ -80,14 +80,14 @@ CONF_APP = "app_support"
 CONF_APP_LIST = "app_list"
 
 # Some additional info to show specific for Netia Player
-TV_WAIT = "TV started, waiting for program info"
-TV_APP_OPENED = "App opened"
+TV_WAIT_INFO = "Waiting for program info"
 TV_NO_INFO = "No program info"
+TV_APP_OPENED = "App opened"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_HOST): cv.string,
-        vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.string,
+        vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Optional(CONF_APP, default=False): cv.boolean,
         vol.Optional(CONF_APP_LIST, default=["tv"]): vol.All(
@@ -134,6 +134,7 @@ class Netia(MediaPlayerDevice):
         self._muted = False
         self._program_name = None
         self._channel_name = None
+        self._previous_channel_id = None
         self._channel_number = None
         self._available_keys = None
         self._application_list = {}
@@ -150,9 +151,9 @@ class Netia(MediaPlayerDevice):
         self._start_time = None
         self._end_time = None
         self._device_class = DEVICE_CLASS_TV
-        self._unique_id = "{}-{}".format(self._netia._host, name)
+        self._unique_id = f"{self._netia._host}-{name}"
         _LOGGER.debug(
-            "Seting up Netia Player with IP: %s:%s and app support: %s.",
+            "Seting up Netia Player with IP: %s:%s. App support: %s.",
             self._netia._host,
             self._netia._port,
             app_support,
@@ -163,25 +164,24 @@ class Netia(MediaPlayerDevice):
     def update(self):
         """Update Netia Player device info."""
         try:
-            self._available_keys = self._netia.available_keys()
             standby_status = self._netia.get_standby_status()
             self._reset_channel_info()
             if standby_status == "off":  # Device is turned ON!
                 self._state = STATE_ON
                 self._refresh_volume()
+                self._available_keys = self._netia.available_keys()
                 app_info = self._netia.get_app_info()
                 if app_info is not None:
                     self._refresh_apps(app_info.get("id"), app_info.get("name"))
                     if app_info.get("id") is "tv":
                         channel_info = self._netia.get_channel_info()
                         if channel_info is not None:
-                            self._media_channel = channel_info.get("media_channel")
-                            self._channel_name = channel_info.get("channel_name")
-                            self._program_name = TV_NO_INFO
-                            self._state = STATE_PLAYING
                             channel_details = self._netia.get_channel_details(
                                 channel_info.get("id")
                             )
+                            self._media_channel = channel_info.get("media_channel")
+                            self._channel_name = channel_info.get("channel_name")
+                            self._state = STATE_PLAYING
                             if channel_details is not None:
                                 self._reset_channel_info()
                                 self._media_channel = channel_info.get("media_channel")
@@ -199,12 +199,12 @@ class Netia(MediaPlayerDevice):
                                 self._start_time = channel_details.get("start_time")
                                 self._end_time = channel_details.get("end_time")
                             else:
-                                if channel_info.get("id") in "giganagrywarka":
+                                self._media_image_url = channel_info.get("image")
+                                if self._previous_channel_id == channel_info.get("id"):
                                     self._program_name = TV_NO_INFO
-                                    _LOGGER.debug(channel_info.get("image"))
-                                    self._media_image_url = channel_info.get("image")
                                 else:
-                                    self._program_name = TV_WAIT
+                                    self._program_name = TV_WAIT_INFO
+                            self._previous_channel_id = channel_info.get("id")
                         else:
                             self._program_name = TV_NO_INFO
                     else:
@@ -213,12 +213,8 @@ class Netia(MediaPlayerDevice):
                         self._media_image_url = app_info.get("image")
                         self._state = TV_APP_OPENED
             else:  # Device is turned OFF
-                if self._program_name is TV_WAIT:
-                    # Device is starting up, takes some time before it responds
-                    _LOGGER.info("TV is starting, no info available yet")
-                else:
-                    self._state = STATE_OFF
-
+                self._state = STATE_OFF
+                self._previous_channel_id = None
         except Exception as exception_instance:  # pylint: disable=broad-except
             _LOGGER.debug(
                 "No data received from device. Error message: %s", exception_instance
@@ -427,7 +423,6 @@ class Netia(MediaPlayerDevice):
         self._netia.turn_on()
         self._reset_channel_info()
         self._state = STATE_ON
-        self._program_name = TV_WAIT
 
     def turn_off(self):
         """Turn the media player off."""
