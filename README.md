@@ -231,10 +231,13 @@ Supported apps:
 `tv, hbogo, kinoplex, ninateka, ipla, abcvod, premiumplus, npvr, goon, netiatvshop, psp, filmbox, tvnplayer, netiacloud, tubafm, tvnmeteo, tvpsport, pinkvision, erowizja, ksw, youtube, mediacenter`
 
 There are internal apps like `epg` and `settings` which you can use in the service but they will not be included in source input list on UI.  
+
+If you will open application that is not in your config it will be added to the source input list temporary  (till the next restart of HA). It may cause `Sources out of sync` warning described below.
+
 _**NOTICE**: Some apps might be unavaliable in your subscription or are extra paid._
 
 ##Known issues
-- Sometimes warnings like:
+- If you are using Homekit integration you may see warnings like:
 `WARNING (SyncWorker_4) [homeassistant.components.homekit.type_media_players] media_player.netia_player: Sources out of sync. Restart Home Assistant`
 may appear. This issue will be fixed later. 
 - `sync_get_media_image` error pops out when current channel image is not accessible at time of request. 
