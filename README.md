@@ -41,7 +41,7 @@ _More details are displayed in the more-info view:_
 
 ## Installation
 
-Put the files from `/custom_components/netia/` in your config folder under `<config directory>/custom_components/netia/`
+Put the files from `/custom_components/netia_player/` in your config folder under `<config directory>/custom_components/netia_player/`
 
 ## Configuration
 **Minimum configuration.yaml:**
