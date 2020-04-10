@@ -134,3 +134,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+images/repo_image.jpg
+images/promo_image.jpg
