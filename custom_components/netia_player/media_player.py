@@ -441,27 +441,10 @@ class Netia(MediaPlayerDevice):
         """Send mute command."""
         self._netia.mute_volume()
 
-    # def media_play_pause(self):
-    #     """Simulate play pause media player."""
-    #     if self._playing:
-    #         self.media_stop()
-    #     else:
-    #         self.media_play()
-    #
-    # def media_play(self):
-    #     """Send play command."""
-    #     self._playing = True
-    #     self._netia.media_play()
-    #
     def media_pause(self):
         """Send media pause command to media player."""
         self._netia.turn_off()
         self._state = STATE_OFF
-
-    # def media_stop(self):
-    #     """Send media pause command to media player."""
-    #     self._netia.turn_off()
-    #     self._state = STATE_OFF
 
     def media_next_track(self):
         """Send next track command."""
