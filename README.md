@@ -35,7 +35,7 @@ _Component can be used with default Home Assistant Media Player and [Mini Media 
 
 ![Media Player in Home Assistant](images/players.gif)
 
-_More details is displayed on the card more-info view:_
+_More details are displayed in the more-info view:_
 
 ![Media Player Details in Home Assistant](images/details.gif)
 
