@@ -236,7 +236,7 @@ If you will open application that is not in your config it will be added to the 
 
 _**NOTICE**: Some apps might be unavaliable in your subscription or are extra paid._
 
-##Known issues
+## Known issues
 - If you are using Homekit integration you may see warnings like:
 `WARNING (SyncWorker_4) [homeassistant.components.homekit.type_media_players] media_player.netia_player: Sources out of sync. Restart Home Assistant`
 may appear. This issue will be fixed later. 
