@@ -184,18 +184,22 @@ class Netia(MediaPlayerDevice):
                             self._state = STATE_PLAYING
                             if channel_details is not None:
                                 self._reset_channel_info()
-                                self._media_channel = "Channel"
-                                self._channel_name = "Channel name"
-                                self._media_image_url = "https://kudlatyworkshop.com/files/temp2.jpg"
-                                self._program_name = "Program name"
-                                self._media_content_type = "TV"
-                                self._media_episode = "Initial release"
+                                self._media_channel = channel_info.get("media_channel")
+                                self._channel_name = channel_info.get("channel_name")
+                                self._media_image_url = channel_details.get("image")
+                                self._program_name = channel_details.get("program_name")
+                                self._media_content_type = channel_details.get(
+                                    "program_media_type"
+                                )
+                                self._media_episode = channel_details.get(
+                                    "media_episode"
+                                )
                                 self._sound_mode = channel_details.get("sound_mode")
                                 self._duration = channel_details.get("duration")
                                 self._start_time = channel_details.get("start_time")
                                 self._end_time = channel_details.get("end_time")
                             else:
-                                self._media_image_url = "https://kudlatyworkshop.com/files/temp1.jpg"
+                                self._media_image_url = channel_info.get("image")
                                 if self._previous_channel_id == channel_info.get("id"):
                                     self._program_name = TV_NO_INFO
                                 else:
