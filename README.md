@@ -41,7 +41,12 @@ _More details are displayed in the more-info view:_
 
 ## Installation
 
-Put the files from `/custom_components/netia_player/` in your config folder under `<config directory>/custom_components/netia_player/`
+- Put the files from `/custom_components/netia_player/` in your HA config folder under `<config directory>/custom_components/netia_player/`
+- Restart Home Assistant
+- Configure new integration in `config.yaml`, see details below
+- Restart Home Assistant again
+- Add `netia_player` entity to the UI
+- Reload UI and use new integration :) 
 
 ## Configuration
 **Minimum configuration.yaml:**
