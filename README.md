@@ -12,6 +12,7 @@ Currently supported device: _Netgem N7800 (Netia Player 2.0)_:
 
 ![Netia Player 2.0](images/netia_player_2_0.jpg)
 
+If you have older unit like Netia Player 1.5 (Netgem N7700) you can request change to newer one. 
 
 ### Homekit TV supported!
 The media player will show up as Television accessories on devices running iOS 12.2 or later
