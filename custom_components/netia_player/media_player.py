@@ -23,6 +23,17 @@ from homeassistant.exceptions import PlatformNotReady
 import homeassistant.helpers.config_validation as cv
 from homeassistant.util.dt import utcnow
 
+from .const import (
+    DEFAULT_NAME,
+    DEVICE_CLASS_TV,
+    DEFAULT_PORT,
+    CONF_APP,
+    CONF_APP_LIST,
+    TV_WAIT_INFO,
+    TV_NO_INFO,
+    TV_APP_OPENED,
+)
+
 try:
     from homeassistant.components.media_player.const import (
         SUPPORT_NEXT_TRACK,
@@ -56,7 +67,7 @@ except ImportError:
         SUPPORT_STOP,
     )
 
-_VERSION = "0.1.1"
+_VERSION = "0.1.2"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,18 +82,6 @@ SUPPORT_NETIA = (
     | SUPPORT_PAUSE
 )
 
-DEFAULT_NAME = "Netia Player"
-DEVICE_CLASS_TV = "tv"
-
-# Config file
-DEFAULT_PORT = "8080"
-CONF_APP = "app_support"
-CONF_APP_LIST = "app_list"
-
-# Some additional info to show specific for Netia Player
-TV_WAIT_INFO = "Waiting for program info"
-TV_NO_INFO = "No program info"
-TV_APP_OPENED = "App opened"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -179,6 +178,7 @@ class Netia(MediaPlayerDevice):
                             channel_details = self._netia.get_channel_details(
                                 channel_info.get("id")
                             )
+                            channel_details = None
                             self._media_channel = channel_info.get("media_channel")
                             self._channel_name = channel_info.get("channel_name")
                             self._state = STATE_PLAYING

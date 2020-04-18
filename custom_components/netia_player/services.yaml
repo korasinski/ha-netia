@@ -1,0 +1,14 @@
+# Services for Netia Player integration.
+
+play_media:
+  description: "Send key to the Netia Player device"
+  fields:
+    entity_id:
+      description: Name(s) of the denonavr entities where to run the API method.
+      example: "media_player.netia_player"
+    media_content_id:
+      description: Endpoint of the command, including associated parameters.
+      example: "on_off"
+    media_content_type:
+      description: Set it always to channel
+      example: "channel"
