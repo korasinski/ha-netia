@@ -10,7 +10,7 @@ import time
 from pyNetia import PyNetia
 import voluptuous as vol
 
-from homeassistant.components.media_player import PLATFORM_SCHEMA, MediaPlayerDevice
+from homeassistant.components.media_player import PLATFORM_SCHEMA, MediaPlayerEntity
 from homeassistant.const import (
     CONF_HOST,
     CONF_NAME,
@@ -22,6 +22,17 @@ from homeassistant.const import (
 from homeassistant.exceptions import PlatformNotReady
 import homeassistant.helpers.config_validation as cv
 from homeassistant.util.dt import utcnow
+
+from .const import (
+    DEFAULT_NAME,
+    DEVICE_CLASS_TV,
+    DEFAULT_PORT,
+    CONF_APP,
+    CONF_APP_LIST,
+    TV_WAIT_INFO,
+    TV_NO_INFO,
+    TV_APP_OPENED,
+)
 
 try:
     from homeassistant.components.media_player.const import (
@@ -56,7 +67,7 @@ except ImportError:
         SUPPORT_STOP,
     )
 
-_VERSION = "0.1.1"
+_VERSION = "0.1.2"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,18 +82,6 @@ SUPPORT_NETIA = (
     | SUPPORT_PAUSE
 )
 
-DEFAULT_NAME = "Netia Player"
-DEVICE_CLASS_TV = "tv"
-
-# Config file
-DEFAULT_PORT = "8080"
-CONF_APP = "app_support"
-CONF_APP_LIST = "app_list"
-
-# Some additional info to show specific for Netia Player
-TV_WAIT_INFO = "Waiting for program info"
-TV_NO_INFO = "No program info"
-TV_APP_OPENED = "App opened"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -119,7 +118,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         add_devices([Netia(netia, name, app_support, app_list)])
 
 
-class Netia(MediaPlayerDevice):
+class Netia(MediaPlayerEntity):
     """Representation of a Netia Player."""
 
     def __init__(self, netia, name, app_support, app_list):
@@ -171,18 +170,18 @@ class Netia(MediaPlayerDevice):
                 self._refresh_volume()
                 self._available_keys = self._netia.available_keys()
                 app_info = self._netia.get_app_info()
-                if app_info is not None:
+                if app_info != None:
                     self._refresh_apps(app_info.get("id"), app_info.get("name"))
-                    if app_info.get("id") is "tv":
+                    if app_info.get("id") == "tv":
                         channel_info = self._netia.get_channel_info()
-                        if channel_info is not None:
+                        if channel_info != None:
                             channel_details = self._netia.get_channel_details(
                                 channel_info.get("id")
                             )
                             self._media_channel = channel_info.get("media_channel")
                             self._channel_name = channel_info.get("channel_name")
                             self._state = STATE_PLAYING
-                            if channel_details is not None:
+                            if channel_details != None:
                                 self._reset_channel_info()
                                 self._media_channel = channel_info.get("media_channel")
                                 self._channel_name = channel_info.get("channel_name")
@@ -248,11 +247,11 @@ class Netia(MediaPlayerDevice):
 
     def _refresh_apps(self, current_id, current_name):
         """Refresh application list."""
-        if self._app_support is True:
+        if self._app_support == True:
             self._application_list = self._netia.application_list()
 
             source_list = []
-            if self._app_list is not None:
+            if self._app_list != None:
                 if "tv" not in self._app_list:
                     source_list.append("TV")
                 if current_id not in self._app_list:
@@ -312,7 +311,7 @@ class Netia(MediaPlayerDevice):
     def supported_features(self):
         """Flag media player features that are supported."""
         supported = SUPPORT_NETIA
-        if self._app_support is True:
+        if self._app_support == True:
             supported = supported ^ SUPPORT_SELECT_SOURCE
         return supported
 
@@ -327,7 +326,7 @@ class Netia(MediaPlayerDevice):
         """Title of current playing media.
         Used to show TV channel info."""
         return_value = None
-        if self._channel_name is not None:
+        if self._channel_name != None:
             return_value = self._channel_name
         return return_value
 
@@ -337,7 +336,7 @@ class Netia(MediaPlayerDevice):
         Used to show TV program info.
         """
         return_value = None
-        if self._program_name is not None:
+        if self._program_name != None:
             return_value = self._program_name
         else:
             if not self._channel_name:  # This is empty when app is opened
@@ -352,7 +351,7 @@ class Netia(MediaPlayerDevice):
     @property
     def media_episode(self):
         """Episode of current playing media, TV show only."""
-        if self._media_episode is not None:
+        if self._media_episode != None:
             return_value = self._media_episode
         else:
             return_value = None
@@ -361,7 +360,7 @@ class Netia(MediaPlayerDevice):
     @property
     def media_channel(self):
         """Channel currently playing."""
-        if self._media_channel is not None:
+        if self._media_channel != None:
             return_value = self._media_channel
         else:
             return_value = None
@@ -370,7 +369,7 @@ class Netia(MediaPlayerDevice):
     @property
     def media_image_url(self):
         """Image url of current playing media."""
-        if self._media_image_url is not None:
+        if self._media_image_url != None:
             return_value = self._media_image_url
         else:
             return_value = None
@@ -379,7 +378,7 @@ class Netia(MediaPlayerDevice):
     @property
     def media_duration(self):
         """Duration of current playing media in seconds."""
-        if self._duration is not None:
+        if self._duration != None:
             return_value = self._duration
         else:
             return_value = None
@@ -388,7 +387,7 @@ class Netia(MediaPlayerDevice):
     @property
     def media_position(self):
         """Position of current playing media in seconds."""
-        if self.media_duration is not None:
+        if self.media_duration != None:
             start_time = self._start_time
             current_time = int(time.time())
             return_value = current_time - start_time
@@ -400,14 +399,14 @@ class Netia(MediaPlayerDevice):
     def media_position_updated_at(self):
         """When was the position of the current playing media valid.
         Returns value from homeassistant.util.dt.utcnow()."""
-        if self.media_position is not None:
+        if self.media_position != None:
             return utcnow()
         return None
 
     @property
     def sound_mode(self):
         """Name of the current sound mode."""
-        if self._sound_mode is not None:
+        if self._sound_mode != None:
             return_value = self._sound_mode
         else:
             return_value = None
