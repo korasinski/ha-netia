@@ -41,7 +41,8 @@ _More details are displayed in the more-info view:_
 
 ![Media Player Details in Home Assistant](images/details.gif)
 
-## Installation
+## Instalation
+### Manual installation
 
 - Put the files from `/custom_components/netia_player/` in your HA config folder under `<config directory>/custom_components/netia_player/`
 - Restart Home Assistant
@@ -49,6 +50,16 @@ _More details are displayed in the more-info view:_
 - Restart Home Assistant again
 - Add `netia_player` entity to the UI
 - Reload UI and use new integration :) 
+
+### Installation via HACS
+- Copy repository URL: `https://github.com/korasinski/ha-netia` to Custom repositories in HACS
+- Click Add button and browse the repository list to install newest relase
+- Integration will be loaded after restart of Home Assistant
+- Configure new integration in `configuration.yaml`, see details below
+- Restart Home Assistant again and configure `netia_player` entity on your UI
+
+![Netia Player on HACS](images/HACS_ha_netia.png)
+
 
 ## Configuration
 **Minimum configuration.yaml:**
