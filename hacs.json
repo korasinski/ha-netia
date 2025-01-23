@@ -1,7 +1,7 @@
 {
-    "name": "Netia Player",
-    "homeassistant": "2021.2.0",
-    "iot_class": "Local Polling",
-    "domains": ["media_player"],
-    "country": "PL"
+  "name": "Netia Player",
+  "homeassistant": "2025.1",
+  "iot_class": "Local Polling",
+  "domains": ["media_player"],
+  "country": "PL"
 }

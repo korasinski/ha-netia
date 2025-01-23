@@ -1,7 +1,7 @@
 {
   "domain": "netia_player",
   "name": "Netia Player",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "codeowners": ["@korasinski"],
   "documentation": "https://github.com/korasinski/ha-netia",
   "requirements": ["pyNetia==0.1.3"]
