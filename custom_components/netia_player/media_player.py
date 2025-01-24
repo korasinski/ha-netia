@@ -34,7 +34,7 @@ from .const import (
     TV_APP_OPENED,
 )
 
-_VERSION = "0.2.0"
+_VERSION = "0.1.3"
 
 _LOGGER = logging.getLogger(__name__)
 
