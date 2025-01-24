@@ -2,7 +2,7 @@
 Support for interface with a Netia Player
 
 For more details about this platform, please refer to the documentation at
-https://github.com/korasinski/ha-neti
+https://github.com/korasinski/ha-netia
 """
 import logging
 import time
@@ -11,14 +11,14 @@ from pyNetia import PyNetia
 import voluptuous as vol
 
 from homeassistant.components.media_player import PLATFORM_SCHEMA, MediaPlayerEntity
+from homeassistant.components.media_player.const import MediaPlayerEntityFeature, MediaPlayerState, MediaType
+
 from homeassistant.const import (
     CONF_HOST,
     CONF_NAME,
     CONF_PORT,
-    STATE_OFF,
-    STATE_ON,
-    STATE_PLAYING,
 )
+
 from homeassistant.exceptions import PlatformNotReady
 import homeassistant.helpers.config_validation as cv
 from homeassistant.util.dt import utcnow
@@ -34,53 +34,9 @@ from .const import (
     TV_APP_OPENED,
 )
 
-try:
-    from homeassistant.components.media_player.const import (
-        SUPPORT_NEXT_TRACK,
-        SUPPORT_PAUSE,
-        SUPPORT_PREVIOUS_TRACK,
-        SUPPORT_TURN_ON,
-        SUPPORT_TURN_OFF,
-        SUPPORT_VOLUME_MUTE,
-        SUPPORT_PLAY,
-        SUPPORT_PLAY_MEDIA,
-        SUPPORT_VOLUME_STEP,
-        SUPPORT_VOLUME_SET,
-        SUPPORT_SELECT_SOURCE,
-        SUPPORT_STOP,
-        MEDIA_TYPE_TVSHOW,
-        MEDIA_TYPE_APP,
-    )
-except ImportError:
-    from homeassistant.components.media_player import (
-        SUPPORT_NEXT_TRACK,
-        SUPPORT_PAUSE,
-        SUPPORT_PREVIOUS_TRACK,
-        SUPPORT_TURN_ON,
-        SUPPORT_TURN_OFF,
-        SUPPORT_VOLUME_MUTE,
-        SUPPORT_PLAY,
-        SUPPORT_PLAY_MEDIA,
-        SUPPORT_VOLUME_STEP,
-        SUPPORT_VOLUME_SET,
-        SUPPORT_SELECT_SOURCE,
-        SUPPORT_STOP,
-    )
-
-_VERSION = "0.1.2"
+_VERSION = "0.1.3"
 
 _LOGGER = logging.getLogger(__name__)
-
-SUPPORT_NETIA = (
-    SUPPORT_TURN_ON
-    | SUPPORT_TURN_OFF
-    | SUPPORT_VOLUME_MUTE
-    | SUPPORT_VOLUME_STEP
-    | SUPPORT_PREVIOUS_TRACK
-    | SUPPORT_NEXT_TRACK
-    | SUPPORT_PLAY_MEDIA
-    | SUPPORT_PAUSE
-)
 
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
@@ -112,7 +68,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     try:
         netia.get_standby_status()
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         raise PlatformNotReady
     else:
         add_devices([Netia(netia, name, app_support, app_list)])
@@ -166,7 +122,7 @@ class Netia(MediaPlayerEntity):
             standby_status = self._netia.get_standby_status()
             self._reset_channel_info()
             if standby_status == "off":  # Device is turned ON!
-                self._state = STATE_ON
+                self._state = MediaPlayerState.ON
                 self._refresh_volume()
                 self._available_keys = self._netia.available_keys()
                 app_info = self._netia.get_app_info()
@@ -180,7 +136,7 @@ class Netia(MediaPlayerEntity):
                             )
                             self._media_channel = channel_info.get("media_channel")
                             self._channel_name = channel_info.get("channel_name")
-                            self._state = STATE_PLAYING
+                            self._state = MediaPlayerState.PLAYING
                             if channel_details != None:
                                 self._reset_channel_info()
                                 self._media_channel = channel_info.get("media_channel")
@@ -212,13 +168,13 @@ class Netia(MediaPlayerEntity):
                         self._media_image_url = app_info.get("image")
                         self._state = TV_APP_OPENED
             else:  # Device is turned OFF
-                self._state = STATE_OFF
+                self._state = MediaPlayerState.OFF
                 self._previous_channel_id = None
         except Exception as exception_instance:  # pylint: disable=broad-except
             _LOGGER.debug(
                 "No data received from device. Error message: %s", exception_instance
             )
-            self._state = STATE_OFF
+            self._state = MediaPlayerState.OFF
 
     def _reset_channel_info(self):
         """Reset channel details."""
@@ -310,16 +266,25 @@ class Netia(MediaPlayerEntity):
     @property
     def supported_features(self):
         """Flag media player features that are supported."""
-        supported = SUPPORT_NETIA
-        if self._app_support == True:
-            supported = supported ^ SUPPORT_SELECT_SOURCE
+        supported = (
+            MediaPlayerEntityFeature.PAUSE
+            | MediaPlayerEntityFeature.VOLUME_MUTE
+            | MediaPlayerEntityFeature.VOLUME_STEP
+            | MediaPlayerEntityFeature.SELECT_SOURCE
+            | MediaPlayerEntityFeature.TURN_ON
+            | MediaPlayerEntityFeature.TURN_OFF
+            | MediaPlayerEntityFeature.PLAY_MEDIA
+            | MediaPlayerEntityFeature.NEXT_TRACK
+            | MediaPlayerEntityFeature.PREVIOUS_TRACK
+        )
+        if self._app_support:
+            supported |= MediaPlayerEntityFeature.SELECT_SOURCE
         return supported
 
     @property
     def media_content_type(self):
-        """Content type of current playing media.
-        Used for program information below the channel in the state card. """
-        return MEDIA_TYPE_TVSHOW
+        """Return content type of the current playing media."""
+        return MediaType.TVSHOW
 
     @property
     def media_title(self):
@@ -421,12 +386,12 @@ class Netia(MediaPlayerEntity):
         """Turn the media player on."""
         self._netia.turn_on()
         self._reset_channel_info()
-        self._state = STATE_ON
+        self._state = MediaPlayerState.ON
 
     def turn_off(self):
         """Turn the media player off."""
         self._netia.turn_off()
-        self._state = STATE_OFF
+        self._state = MediaPlayerState.OFF
 
     def volume_up(self):
         """Volume up the media player."""
@@ -443,7 +408,7 @@ class Netia(MediaPlayerEntity):
     def media_pause(self):
         """Send media pause command to media player."""
         self._netia.turn_off()
-        self._state = STATE_OFF
+        self._state = MediaPlayerState.OFF
 
     def media_next_track(self):
         """Send next track command."""
